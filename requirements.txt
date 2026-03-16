@@ -1,0 +1,10 @@
+numpy
+nibabel
+pydicom
+scipy
+scikit-image
+matplotlib
+torch
+fpdf
+numpy-stl
+nilearn
