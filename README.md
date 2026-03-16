@@ -1,4 +1,4 @@
-# Biomed MRI Viewer & 3D Tumor Segmentation Engine
+# MRAI-Tumor-Segmentation-and-3D-Export Engine
 
 **Developer:** Tair Fridman | B.Sc. Biomedical Engineering, Technion
 
