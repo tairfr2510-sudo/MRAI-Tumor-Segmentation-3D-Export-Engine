@@ -859,7 +859,7 @@ def open_dsp_window(event):
     ax_orig.set_title("Original Slice", color=THEME['accent'])
     ax_orig.axis('off')
     
-    init_radius = 0.02
+    init_radius = 0.15
     filtered_slice = DSP_Engine.apply_fft_highpass(current_slice, init_radius)
     img_fft = ax_fft.imshow(filtered_slice, cmap='gray')
     ax_fft.set_title("FFT High-Pass Filter", color=THEME['accent'])
@@ -869,7 +869,7 @@ def open_dsp_window(event):
     canvas.get_tk_widget().pack(fill=tk.BOTH, expand=True)
     
     ax_slider = fig_dsp.add_axes([0.2, 0.05, 0.6, 0.05], facecolor=THEME['bg'])
-    dsp_slider = Slider(ax_slider, 'Cutoff Radius', 0.0, 0.15, valinit=init_radius)
+    dsp_slider = Slider(ax_slider, 'Cutoff Radius', 0.1, 0.2, valinit=init_radius)
     
     dsp_slider.label.set_color(THEME['fg'])
     dsp_slider.valtext.set_color(THEME['accent'])
@@ -877,8 +877,22 @@ def open_dsp_window(event):
     
     def update_fft(val):
         r = dsp_slider.val
-        new_filtered = DSP_Engine.apply_fft_highpass(current_slice, r)
-        img_fft.set_data(new_filtered)
+        
+        # 1. מפעילים את המסנן ומקבלים רק את הקצוות (התדרים הגבוהים)
+        edges = DSP_Engine.apply_fft_highpass(current_slice, r)
+        
+        # 2. מגדירים את "כפתור הווליום" של החידוד (אפשר לשחק עם המספר הזה)
+        alpha = 1.5 
+        
+        # 3. פעולת החיבור: התמונה המקורית + (הקצוות כפול הווליום)
+        sharpened = current_slice + (alpha * edges)
+        
+        # כדי שהתצוגה לא תשתגע מערכים שחורגים מהטווח של הצבעים, "חותכים" אותם
+        # בהנחה שהתמונה שלך מנורמלת לטווח של 0 עד 1
+        sharpened = np.clip(sharpened, 0.0, 1.0) 
+        
+        # 4. מציגים את התמונה המחודדת בחלון הימני
+        img_fft.set_data(sharpened)
         canvas.draw_idle()
         
     dsp_slider.on_changed(update_fft)
